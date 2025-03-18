@@ -3,10 +3,53 @@
 {% block content %}
     <h1>Blog Posts</h1>
     {% for post in posts %}
-        <div>
-            <h2>{{ post.title }}</h2>
-            <p>{{ post.content }}</p>
-            <p>By {{ post.author.username }}</p>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="card-title">{{ post.title }}</h2>
+                <p class="card-text">{{ post.content }}</p>
+                <p class="card-text"><small class="text-muted">By {{ post.author.username }}</small></p>
+
+                <!-- Edit and Delete Buttons -->
+                {% if current_user == post.author or current_user.role == 'admin' %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <!-- Comment Section -->
+                <div class="mt-4">
+                    <h5>Comments</h5>
+                    {% for comment in post.comments %}
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <p class="card-text">{{ comment.content }}</p>
+                                <p class="card-text"><small class="text-muted">By {{ comment.author.username }} on {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small></p>
+                                {% if current_user == comment.author or current_user.role == 'admin' %}
+                                    <div>
+                                        <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                                        <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <!-- Add Comment Form -->
+                    {% if current_user.is_authenticated %}
+                        <form action="{{ url_for('add_comment', post_id=post.id) }}" method="POST" class="mt-3">
+                            <div class="form-group">
+                                <textarea class="form-control" name="content" rows="3" placeholder="Add a comment..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Comment</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% endfor %}
 {% endblock %}

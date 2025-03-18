@@ -25,7 +25,12 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        if current_user.is_admin():
+            return redirect(url_for('admin_dashboard'))
         return redirect(url_for('home'))
+
+    #if current_user.is_authenticated:
+    #    return redirect(url_for('home'))
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -35,6 +40,8 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash('Login successful!', 'success')
+            if user.is_admin():  
+                return redirect(url_for('admin_dashboard'))
             return redirect(url_for('home'))
         else:
             flash('Invalid email or password', 'error')

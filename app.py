@@ -2,6 +2,7 @@ from flask import Flask
 from website.model import db, User, Post
 from website.config import DevelopmentConfig
 from flask_login import LoginManager
+from website.api_resources import api
 
 def create_admin_user():
     admin_email = 'admin@example.com'
@@ -17,6 +18,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(DevelopmentConfig)
     db.init_app(app)
+    api.init_app(app)
     with app.app_context():
         db.create_all()
         create_admin_user()
